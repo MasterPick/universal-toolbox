@@ -1,11 +1,11 @@
-# 万能工具箱 Universal Toolbox
+# XTool
 
 <div align="center">
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Go](https://img.shields.io/badge/Go-1.21-00ADD8)
+![Go](https://img.shields.io/badge/Go-1.22-00ADD8)
 ![Vue](https://img.shields.io/badge/Vue-3.4-42b883)
 
 **一站式桌面工具集，功能丰富、启动极快、界面现代、动效流畅、无广告**
@@ -29,9 +29,9 @@
 
 | 平台 | 下载 |
 |------|------|
-| Windows 10/11 | [万能工具箱.exe](https://github.com/MasterPick/universal-toolbox/releases/latest) |
-| Linux (amd64) | [universal-toolbox_linux_amd64.tar.gz](https://github.com/MasterPick/universal-toolbox/releases/latest) |
-| macOS | [universal-toolbox_macos.dmg](https://github.com/MasterPick/universal-toolbox/releases/latest) |
+| Windows 10/11 | [XTool.exe](https://github.com/MasterPick/xtool/releases/latest) |
+| Linux (amd64) | [xtool_linux_amd64.tar.gz](https://github.com/MasterPick/xtool/releases/latest) |
+| macOS | [xtool_macos.dmg](https://github.com/MasterPick/xtool/releases/latest) |
 
 ## 🛠️ 功能清单
 
@@ -76,7 +76,7 @@
 ## 🏗️ 技术架构
 
 ```
-万能工具箱
+XTool
 ├── 后端 (Go)
 │   ├── Wails v2         # 跨平台桌面框架
 │   ├── gopsutil         # 系统信息获取
@@ -93,16 +93,16 @@
 ## 💻 本地开发
 
 ### 环境要求
-- Go 1.21+
-- Node.js 20+
-- Wails CLI v2.9+
+- Go 1.22+
+- Node.js 22+
+- Wails CLI v2.12+
 
 ### 安装步骤
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/MasterPick/universal-toolbox.git
-cd universal-toolbox
+git clone https://github.com/MasterPick/xtool.git
+cd xtool
 
 # 2. 安装 Wails CLI
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
