@@ -51,7 +51,7 @@ func main() {
 
 	// 创建 Wails 应用
 	err = wails.Run(&options.App{
-		Title:            "万能工具箱 Universal Toolbox",
+		Title:            "XTool",
 		Width:            1280,
 		Height:           800,
 		MinWidth:         900,
@@ -87,7 +87,7 @@ func main() {
 			DisableWindowIcon:                 false,
 			IsZoomControlEnabled:              false,
 			EnableSwipeGestures:               false,
-			DisableFramelessWindowDecorations: false,
+			DisableFramelessWindowDecorations: true,  // 启用无边框窗口（避免双标题栏）
 		},
 
 		// 日志级别
