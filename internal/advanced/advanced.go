@@ -3,7 +3,7 @@
 package advanced
 
 import (
-	"universal-toolbox/internal/config"
+	"xtool/internal/config"
 )
 
 // AdvancedTools 高级工具结构体（Wails 绑定到前端）

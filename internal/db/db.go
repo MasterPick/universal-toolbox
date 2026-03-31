@@ -16,7 +16,7 @@ type Database struct {
 }
 
 // Init 初始化 SQLite 数据库
-// 数据库文件存储在用户主目录下的 .universal-toolbox/ 文件夹中
+// 数据库文件存储在用户主目录下的 .xtool/ 文件夹中
 func Init() (*Database, error) {
 	// 获取用户主目录
 	homeDir, err := os.UserHomeDir()
@@ -25,7 +25,7 @@ func Init() (*Database, error) {
 	}
 
 	// 创建数据目录（若不存在）
-	dataDir := filepath.Join(homeDir, ".universal-toolbox")
+	dataDir := filepath.Join(homeDir, ".xtool")
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, err
 	}

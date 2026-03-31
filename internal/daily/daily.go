@@ -7,7 +7,7 @@ import (
 	"math"
 	"strings"
 	"time"
-	"universal-toolbox/internal/db"
+	"xtool/internal/db"
 )
 
 // DailyTools 日常工具结构体（Wails 绑定到前端）

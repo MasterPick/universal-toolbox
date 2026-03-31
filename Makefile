@@ -1,10 +1,10 @@
 # ========================================================
-# 万能工具箱 Makefile
+# XTool Makefile
 # 支持本地构建所有平台安装包
 # ========================================================
 
-APP_NAME := 万能工具箱
-APP_NAME_EN := universal-toolbox
+APP_NAME := XTool
+APP_NAME_EN := xtool
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 BUILD_DIR := build/bin
 
@@ -12,7 +12,7 @@ BUILD_DIR := build/bin
 
 # 默认目标：显示帮助
 help:
-	@echo "万能工具箱构建系统 v$(VERSION)"
+	@echo "XTool 构建系统 v$(VERSION)"
 	@echo ""
 	@echo "用法："
 	@echo "  make dev              启动开发模式（热重载）"
@@ -77,8 +77,8 @@ _deb-package:
 	chmod +x $$DEB_DIR/usr/bin/$(APP_NAME_EN) && \
 	cp README.md $$DEB_DIR/usr/share/doc/$(APP_NAME_EN)/ && \
 	cp LICENSE $$DEB_DIR/usr/share/doc/$(APP_NAME_EN)/ && \
-	printf '[Desktop Entry]\nVersion=%s\nName=万能工具箱\nExec=/usr/bin/$(APP_NAME_EN)\nTerminal=false\nType=Application\nCategories=Utility;\n' "$${VERSION#v}" > $$DEB_DIR/usr/share/applications/$(APP_NAME_EN).desktop && \
-	printf 'Package: $(APP_NAME_EN)\nVersion: %s\nSection: utils\nPriority: optional\nArchitecture: amd64\nMaintainer: MasterPick <masterpickself@outlook.com>\nDescription: 万能工具箱\n' "$${VERSION#v}" > $$DEB_DIR/DEBIAN/control && \
+	printf '[Desktop Entry]\nVersion=%s\nName=XTool\nExec=/usr/bin/$(APP_NAME_EN)\nTerminal=false\nType=Application\nCategories=Utility;\n' "$${VERSION#v}" > $$DEB_DIR/usr/share/applications/$(APP_NAME_EN).desktop && \
+	printf 'Package: $(APP_NAME_EN)\nVersion: %s\nSection: utils\nPriority: optional\nArchitecture: amd64\nMaintainer: MasterPick <masterpickself@outlook.com>\nDescription: XTool\n' "$${VERSION#v}" > $$DEB_DIR/DEBIAN/control && \
 	fakeroot dpkg-deb --build $$DEB_DIR $(BUILD_DIR)/$(APP_NAME_EN)_$${VERSION#v}_amd64.deb && \
 	rm -rf $$DEB_DIR
 

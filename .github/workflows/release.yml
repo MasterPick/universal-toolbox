@@ -1,9 +1,9 @@
 # GitHub Actions：多平台自动构建与发布工作流
 # 触发条件：推送 v* 格式标签时自动执行
 # 输出：
-#   Windows → 万能工具箱_Setup.exe（NSIS 安装包）+ 万能工具箱.exe（单文件）
-#   Linux   → universal-toolbox_linux_amd64.deb + universal-toolbox_linux_amd64.tar.gz
-#   macOS   → universal-toolbox_macos.dmg
+#   Windows → XTool_Setup.exe（NSIS 安装包）+ XTool.exe（单文件）
+#   Linux   → xtool_linux_amd64.deb + xtool_linux_amd64.tar.gz
+#   macOS   → xtool_macos.dmg
 
 name: 🚀 多平台构建与发布
 
@@ -22,8 +22,8 @@ on:
 env:
   GO_VERSION: '1.22'
   NODE_VERSION: '22'
-  APP_NAME: '万能工具箱'
-  APP_NAME_EN: 'universal-toolbox'
+  APP_NAME: 'XTool'
+  APP_NAME_EN: 'xtool'
 
 jobs:
   # ============================================================

@@ -1,4 +1,4 @@
-module universal-toolbox
+module xtool
 
 go 1.22.0
 

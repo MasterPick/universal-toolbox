@@ -1,4 +1,4 @@
-// Package main 万能工具箱主入口
+// Package main XTool 主入口
 // 使用 Wails v2 框架构建跨平台桌面应用
 // 技术栈：Go + Vue3 + TypeScript + TailwindCSS + SQLite
 package main
@@ -6,14 +6,14 @@ package main
 import (
 	"embed"
 
-	"universal-toolbox/internal/advanced"
-	"universal-toolbox/internal/config"
-	"universal-toolbox/internal/daily"
-	"universal-toolbox/internal/db"
-	"universal-toolbox/internal/devtools"
-	applog "universal-toolbox/internal/log"
-	"universal-toolbox/internal/network"
-	"universal-toolbox/internal/sysinfo"
+	"xtool/internal/advanced"
+	"xtool/internal/config"
+	"xtool/internal/daily"
+	"xtool/internal/db"
+	"xtool/internal/devtools"
+	applog "xtool/internal/log"
+	"xtool/internal/network"
+	"xtool/internal/sysinfo"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"

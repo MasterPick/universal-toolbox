@@ -193,7 +193,7 @@ func (n *NetworkTools) HTTPRequest(method, url, body string, headers map[string]
 	}
 
 	// 设置默认请求头
-	req.Header.Set("User-Agent", "Universal-Toolbox/1.0")
+	req.Header.Set("User-Agent", "XTool/1.0")
 	if body != "" {
 		req.Header.Set("Content-Type", "application/json")
 	}

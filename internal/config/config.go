@@ -5,7 +5,7 @@ package config
 
 import (
 	"encoding/json"
-	"universal-toolbox/internal/db"
+	"xtool/internal/db"
 )
 
 // AppConfig 应用全局配置结构

@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
-	"universal-toolbox/internal/db"
+	"xtool/internal/db"
 
 	"github.com/google/uuid"
 )

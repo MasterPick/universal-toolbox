@@ -15,9 +15,9 @@
       <!-- 左侧：Logo + 标题 -->
       <div class="flex items-center gap-2" style="--wails-draggable: no-drag">
         <div class="w-5 h-5 rounded bg-primary-500 flex items-center justify-center">
-          <span class="text-white text-xs font-bold">T</span>
+          <span class="text-white text-xs font-bold">X</span>
         </div>
-        <span class="text-sm font-medium opacity-80">万能工具箱</span>
+        <span class="text-sm font-medium opacity-80">XTool</span>
       </div>
 
       <!-- 右侧：窗口控制按钮 -->

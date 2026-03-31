@@ -28,13 +28,13 @@ type Logger struct {
 }
 
 // NewLogger 创建新的日志记录器实例
-// 日志文件存储在用户主目录下的 .universal-toolbox/logs/ 文件夹中
+// 日志文件存储在用户主目录下的 .xtool/logs/ 文件夹中
 func NewLogger() *Logger {
 	// 获取用户主目录
 	homeDir, _ := os.UserHomeDir()
 
 	// 创建日志目录
-	logDir := filepath.Join(homeDir, ".universal-toolbox", "logs")
+	logDir := filepath.Join(homeDir, ".xtool", "logs")
 	_ = os.MkdirAll(logDir, 0755)
 
 	// 按日期创建日志文件（每天一个）
