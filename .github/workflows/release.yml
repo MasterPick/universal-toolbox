@@ -64,13 +64,32 @@ jobs:
           dir build\bin
 
       - name: 安装 NSIS（制作安装包）
+        shell: pwsh
         run: |
           choco install nsis -y --no-progress
+          # 刷新 PATH
+          $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+          # 验证 NSIS 安装
+          @("C:\Program Files (x86)\NSIS\makensis.exe", "C:\Program Files\NSIS\makensis.exe") | ForEach-Object {
+            if (Test-Path $_) {
+              Write-Host "NSIS found at: $_"
+              $ver = & $_ /VERSION
+              Write-Host "NSIS version: $ver"
+            }
+          }
           echo "NSIS 安装完成"
 
       - name: 生成 NSIS 安装脚本
         shell: pwsh
         run: |
+          # 检查构建输出
+          if (-not (Test-Path "build\bin\${{ env.APP_NAME }}.exe")) {
+            Write-Error "Build output not found: build\bin\${{ env.APP_NAME }}.exe"
+            ls -Recurse build 2>/dev/null | head -20
+            exit 1
+          }
+          Write-Host "Build output verified: build\bin\${{ env.APP_NAME }}.exe"
+          
           $version = "${{ github.ref_name }}" -replace '^v', ''
           if (-not $version) { $version = "1.0.0" }
           
@@ -158,12 +177,32 @@ jobs:
           SectionEnd
           "@
           
-          $nsisScript | Out-File -FilePath "installer.nsi" -Encoding UTF8
+          [System.IO.File]::WriteAllText("$PWD\installer.nsi", $nsisScript, [System.Text.UTF8Encoding]::new($false))
           echo "NSIS 脚本生成完成"
 
       - name: 编译 NSIS 安装包
+        shell: pwsh
         run: |
-          "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
+          # 尝试多个可能的 NSIS 安装路径
+          $makensis = $null
+          @(
+            "C:\Program Files (x86)\NSIS\makensis.exe",
+            "C:\Program Files\NSIS\makensis.exe"
+          ) | ForEach-Object {
+            if (Test-Path $_) { $makensis = $_ }
+          }
+          
+          if (-not $makensis) {
+            Write-Error "makensis.exe not found!"
+            exit 1
+          }
+          
+          Write-Host "Using NSIS: $makensis"
+          & $makensis installer.nsi
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "NSIS compilation failed with exit code $LASTEXITCODE"
+            exit 1
+          }
           echo "安装包编译完成"
           dir build\bin
 
