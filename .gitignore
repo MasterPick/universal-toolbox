@@ -1,0 +1,51 @@
+# Go 编译产物
+*.exe
+*.dll
+*.so
+*.dylib
+build/bin/
+
+# Go 模块缓存
+vendor/
+
+# 前端构建产物
+frontend/dist/
+frontend/node_modules/
+
+# 数据库文件
+*.db
+*.sqlite
+
+# 日志文件
+*.log
+logs/
+
+# IDE 配置
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS 临时文件
+.DS_Store
+**/.DS_Store
+
+# Windows 临时文件
+Thumbs.db
+desktop.ini
+
+# 构建缓存
+.cache/
+tmp/
+
+# 环境变量（敏感信息）
+.env
+.env.local
+.env.production
+
+# Wails 生成的绑定文件（可自动生成）
+frontend/wailsjs/
+
+# 覆盖率报告
+coverage.out
+coverage.html

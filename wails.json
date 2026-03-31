@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "universal-toolbox",
+  "outputfilename": "万能工具箱",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "MasterPick",
+    "email": "masterpickself@outlook.com"
+  },
+  "info": {
+    "companyName": "MasterPick",
+    "productName": "万能工具箱",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright © 2026 MasterPick",
+    "comments": "一站式桌面工具集，功能丰富、启动快、界面现代"
+  }
+}

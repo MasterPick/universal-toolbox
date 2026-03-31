@@ -1,0 +1,172 @@
+// 路由配置文件
+// 定义所有页面路由，支持懒加载以提升首屏性能
+
+import { createRouter, createWebHashHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
+
+// 路由表（全部懒加载）
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    redirect: '/devtools/json',
+  },
+
+  // ============ 开发工具 ============
+  {
+    path: '/devtools',
+    redirect: '/devtools/json',
+  },
+  {
+    path: '/devtools/json',
+    name: 'JsonTool',
+    component: () => import('@/views/devtools/JsonTool.vue'),
+    meta: { title: 'JSON 工具', category: 'devtools', icon: 'Braces' },
+  },
+  {
+    path: '/devtools/xml',
+    name: 'XmlTool',
+    component: () => import('@/views/devtools/XmlTool.vue'),
+    meta: { title: 'XML 工具', category: 'devtools', icon: 'Code2' },
+  },
+  {
+    path: '/devtools/base64',
+    name: 'Base64Tool',
+    component: () => import('@/views/devtools/Base64Tool.vue'),
+    meta: { title: 'Base64 编解码', category: 'devtools', icon: 'Binary' },
+  },
+  {
+    path: '/devtools/url',
+    name: 'UrlTool',
+    component: () => import('@/views/devtools/UrlTool.vue'),
+    meta: { title: 'URL 编解码', category: 'devtools', icon: 'Link' },
+  },
+  {
+    path: '/devtools/hash',
+    name: 'HashTool',
+    component: () => import('@/views/devtools/HashTool.vue'),
+    meta: { title: '哈希计算', category: 'devtools', icon: 'Hash' },
+  },
+  {
+    path: '/devtools/text',
+    name: 'TextTool',
+    component: () => import('@/views/devtools/TextTool.vue'),
+    meta: { title: '文本工具', category: 'devtools', icon: 'FileText' },
+  },
+  {
+    path: '/devtools/qrcode',
+    name: 'QRCodeTool',
+    component: () => import('@/views/devtools/QRCodeTool.vue'),
+    meta: { title: '二维码工具', category: 'devtools', icon: 'QrCode' },
+  },
+  {
+    path: '/devtools/uuid',
+    name: 'UuidTool',
+    component: () => import('@/views/devtools/UuidTool.vue'),
+    meta: { title: 'UUID 生成', category: 'devtools', icon: 'Fingerprint' },
+  },
+  {
+    path: '/devtools/timestamp',
+    name: 'TimestampTool',
+    component: () => import('@/views/devtools/TimestampTool.vue'),
+    meta: { title: '时间戳转换', category: 'devtools', icon: 'Clock' },
+  },
+  {
+    path: '/devtools/regex',
+    name: 'RegexTool',
+    component: () => import('@/views/devtools/RegexTool.vue'),
+    meta: { title: '正则测试', category: 'devtools', icon: 'Regex' },
+  },
+  {
+    path: '/devtools/snippets',
+    name: 'SnippetsTool',
+    component: () => import('@/views/devtools/SnippetsTool.vue'),
+    meta: { title: '代码片段', category: 'devtools', icon: 'BookMarked' },
+  },
+
+  // ============ 系统工具 ============
+  {
+    path: '/sysinfo/process',
+    name: 'ProcessTool',
+    component: () => import('@/views/sysinfo/ProcessTool.vue'),
+    meta: { title: '进程管理', category: 'sysinfo', icon: 'Cpu' },
+  },
+  {
+    path: '/sysinfo/ports',
+    name: 'PortsTool',
+    component: () => import('@/views/sysinfo/PortsTool.vue'),
+    meta: { title: '端口查看', category: 'sysinfo', icon: 'Network' },
+  },
+  {
+    path: '/sysinfo/sysinfo',
+    name: 'SystemInfo',
+    component: () => import('@/views/sysinfo/SystemInfo.vue'),
+    meta: { title: '系统信息', category: 'sysinfo', icon: 'Monitor' },
+  },
+  {
+    path: '/sysinfo/rename',
+    name: 'BatchRename',
+    component: () => import('@/views/sysinfo/BatchRename.vue'),
+    meta: { title: '批量重命名', category: 'sysinfo', icon: 'FilePen' },
+  },
+
+  // ============ 日常工具 ============
+  {
+    path: '/daily/calculator',
+    name: 'Calculator',
+    component: () => import('@/views/daily/Calculator.vue'),
+    meta: { title: '计算器', category: 'daily', icon: 'Calculator' },
+  },
+  {
+    path: '/daily/converter',
+    name: 'Converter',
+    component: () => import('@/views/daily/Converter.vue'),
+    meta: { title: '单位换算', category: 'daily', icon: 'ArrowLeftRight' },
+  },
+  {
+    path: '/daily/notes',
+    name: 'Notes',
+    component: () => import('@/views/daily/Notes.vue'),
+    meta: { title: '备忘录', category: 'daily', icon: 'StickyNote' },
+  },
+
+  // ============ 网络工具 ============
+  {
+    path: '/network/ping',
+    name: 'PingTool',
+    component: () => import('@/views/network/PingTool.vue'),
+    meta: { title: 'Ping 测试', category: 'network', icon: 'Signal' },
+  },
+  {
+    path: '/network/scan',
+    name: 'ScanTool',
+    component: () => import('@/views/network/ScanTool.vue'),
+    meta: { title: '内网扫描', category: 'network', icon: 'Radar' },
+  },
+  {
+    path: '/network/http',
+    name: 'HttpTool',
+    component: () => import('@/views/network/HttpTool.vue'),
+    meta: { title: 'HTTP 测试', category: 'network', icon: 'Globe' },
+  },
+  {
+    path: '/network/hosts',
+    name: 'HostsTool',
+    component: () => import('@/views/network/HostsTool.vue'),
+    meta: { title: 'Hosts 编辑', category: 'network', icon: 'Server' },
+  },
+
+  // ============ 设置 ============
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('@/views/settings/Settings.vue'),
+    meta: { title: '设置', category: 'settings', icon: 'Settings' },
+  },
+]
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+})
+
+export default router

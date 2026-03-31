@@ -1,0 +1,97 @@
+# 万能工具箱 GoReleaser 配置
+# 自动构建多平台二进制包并发布到 GitHub Release
+
+version: 2
+
+# 项目基础信息
+project_name: universal-toolbox
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+builds:
+  - id: universal-toolbox
+    main: .
+    binary: 万能工具箱
+    # 支持三平台构建
+    goos:
+      - windows
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    # 排除不支持的组合
+    ignore:
+      - goos: windows
+        goarch: arm64
+    # 构建时注入版本信息
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.buildDate={{.Date}}
+    # 环境变量（CGO 用于 SQLite）
+    env:
+      - CGO_ENABLED=1
+
+# Windows 安装包配置
+nfpms:
+  - id: linux-package
+    package_name: universal-toolbox
+    vendor: MasterPick
+    homepage: https://github.com/MasterPick/universal-toolbox
+    maintainer: MasterPick <masterpickself@outlook.com>
+    description: 万能工具箱 - 一站式桌面工具集
+    license: MIT
+    formats:
+      - deb
+      - tar.gz
+
+# 存档打包
+archives:
+  - id: default
+    format_overrides:
+      - goos: windows
+        format: zip
+      - goos: linux
+        format: tar.gz
+      - goos: darwin
+        format: tar.gz
+    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}_{{.Arch}}"
+    files:
+      - README.md
+      - LICENSE
+      - CHANGELOG.md
+
+# 校验和
+checksum:
+  name_template: "checksums.txt"
+
+# 变更日志
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+
+# GitHub Release
+release:
+  github:
+    owner: MasterPick
+    name: universal-toolbox
+  draft: false
+  prerelease: auto
+  name_template: "v{{.Version}}"
+  header: |
+    ## 万能工具箱 v{{.Version}}
+    
+    一站式桌面工具集，包含开发工具、系统工具、日常工具、网络工具等 30+ 功能。
+    
+    ### 下载说明
+    - **Windows**: 下载 `*_windows_amd64.zip`
+    - **Linux**: 下载 `*_linux_amd64.tar.gz` 或 `.deb` 包
+    - **macOS**: 下载 `*_darwin_amd64.tar.gz`
