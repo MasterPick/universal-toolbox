@@ -47,6 +47,16 @@
         <Settings :size="16" class="shrink-0" />
         <span v-if="!collapsed" class="text-sm">设置</span>
       </RouterLink>
+      <!-- 主题编辑器 -->
+      <RouterLink to="/settings/theme" class="nav-item" :class="{ 'active': isActive('/settings/theme'), 'collapsed': collapsed }">
+        <Palette :size="16" class="shrink-0" />
+        <span v-if="!collapsed" class="text-sm">主题编辑</span>
+      </RouterLink>
+      <!-- 快捷键管理 -->
+      <RouterLink to="/settings/shortcuts" class="nav-item" :class="{ 'active': isActive('/settings/shortcuts'), 'collapsed': collapsed }">
+        <Keyboard :size="16" class="shrink-0" />
+        <span v-if="!collapsed" class="text-sm">快捷键</span>
+      </RouterLink>
 
       <!-- 折叠按钮 -->
       <button @click="appStore.toggleSidebar()"
@@ -65,7 +75,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import {
   Search, Settings, PanelLeftClose, PanelLeftOpen,
   Braces, Code2, Binary, Link, Hash, FileText, QrCode, GitCompare,
-  Fingerprint, Clock, Regex, BookMarked, Shield,
+  Fingerprint, Clock, Regex, BookMarked, Shield, Palette, Keyboard,
   Cpu, Network, Monitor, FilePen, Pipette, Image, FolderSearch,
   Calculator, ArrowLeftRight, StickyNote,
   Signal, Radar, Globe, Server,
@@ -84,10 +94,10 @@ const isActive = (path: string) => route.path.startsWith(path)
 // 图标映射表
 const iconMap: Record<string, any> = {
   Braces, Code2, Binary, Link, Hash, FileText, QrCode, GitCompare,
-  Fingerprint, Clock, Regex, BookMarked, Shield,
+  Fingerprint, Clock, Regex, BookMarked, Shield, Palette, Keyboard,
   Cpu, Network, Monitor, FilePen, Pipette, Image, FolderSearch,
   Calculator, ArrowLeftRight, StickyNote,
-  Signal, Radar, Globe, Server,
+  Signal, Radar, Globe, Server, Settings,
 }
 const getIcon = (name: string) => iconMap[name] || FileText
 

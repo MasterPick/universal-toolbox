@@ -192,6 +192,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/settings/Settings.vue'),
     meta: { title: '设置', category: 'settings', icon: 'Settings' },
   },
+  {
+    path: '/settings/theme',
+    name: 'ThemeEditor',
+    component: () => import('@/views/settings/ThemeEditor.vue'),
+    meta: { title: '主题编辑器', category: 'settings', icon: 'Palette' },
+  },
+  {
+    path: '/settings/shortcuts',
+    name: 'ShortcutManager',
+    component: () => import('@/views/settings/ShortcutManager.vue'),
+    meta: { title: '快捷键管理', category: 'settings', icon: 'Keyboard' },
+  },
 ]
 
 const router = createRouter({
