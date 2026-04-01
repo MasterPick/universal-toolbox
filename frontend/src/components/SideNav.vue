@@ -64,7 +64,7 @@ import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
   Search, Settings, PanelLeftClose, PanelLeftOpen,
-  Braces, Code2, Binary, Link, Hash, FileText, QrCode,
+  Braces, Code2, Binary, Link, Hash, FileText, QrCode, GitCompare,
   Fingerprint, Clock, Regex, BookMarked, Shield,
   Cpu, Network, Monitor, FilePen, Pipette, Image, FolderSearch,
   Calculator, ArrowLeftRight, StickyNote,
@@ -83,7 +83,7 @@ const isActive = (path: string) => route.path.startsWith(path)
 
 // 图标映射表
 const iconMap: Record<string, any> = {
-  Braces, Code2, Binary, Link, Hash, FileText, QrCode,
+  Braces, Code2, Binary, Link, Hash, FileText, QrCode, GitCompare,
   Fingerprint, Clock, Regex, BookMarked, Shield,
   Cpu, Network, Monitor, FilePen, Pipette, Image, FolderSearch,
   Calculator, ArrowLeftRight, StickyNote,
@@ -98,6 +98,7 @@ const navGroups = [
     label: '开发工具',
     items: [
       { path: '/devtools/json',      label: 'JSON 工具',   icon: 'Braces' },
+      { path: '/devtools/jsondiff',  label: 'JSON 对比',   icon: 'GitCompare' },
       { path: '/devtools/xml',       label: 'XML 工具',    icon: 'Code2' },
       { path: '/devtools/base64',    label: 'Base64',      icon: 'Binary' },
       { path: '/devtools/url',       label: 'URL 编解码',  icon: 'Link' },

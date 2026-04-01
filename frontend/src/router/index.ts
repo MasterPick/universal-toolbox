@@ -23,6 +23,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'JSON 工具', category: 'devtools', icon: 'Braces' },
   },
   {
+    path: '/devtools/jsondiff',
+    name: 'JsonDiffTool',
+    component: () => import('@/views/devtools/JsonDiffTool.vue'),
+    meta: { title: 'JSON 对比', category: 'devtools', icon: 'GitCompare' },
+  },
+  {
     path: '/devtools/xml',
     name: 'XmlTool',
     component: () => import('@/views/devtools/XmlTool.vue'),
