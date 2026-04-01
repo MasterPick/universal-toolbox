@@ -78,7 +78,7 @@ import {
   Fingerprint, Clock, Regex, BookMarked, Shield, Palette, Keyboard,
   Cpu, Network, Monitor, FilePen, Pipette, Image, FolderSearch,
   Calculator, ArrowLeftRight, StickyNote,
-  Signal, Radar, Globe, Server,
+  Signal, Radar, Globe, Globe2, Server,
 } from 'lucide-vue-next'
 import { useAppStore } from '@/stores/app'
 
@@ -97,7 +97,7 @@ const iconMap: Record<string, any> = {
   Fingerprint, Clock, Regex, BookMarked, Shield, Palette, Keyboard,
   Cpu, Network, Monitor, FilePen, Pipette, Image, FolderSearch,
   Calculator, ArrowLeftRight, StickyNote,
-  Signal, Radar, Globe, Server, Settings,
+  Signal, Radar, Globe, Globe2, Server, Settings,
 }
 const getIcon = (name: string) => iconMap[name] || FileText
 
@@ -151,6 +151,7 @@ const navGroups = [
       { path: '/network/ping',  label: 'Ping 测试', icon: 'Signal' },
       { path: '/network/scan',  label: '内网扫描',  icon: 'Radar' },
       { path: '/network/http',  label: 'HTTP 测试', icon: 'Globe' },
+      { path: '/network/dns',   label: 'DNS 查询',  icon: 'Globe2' },
       { path: '/network/hosts', label: 'Hosts 编辑', icon: 'Server' },
     ],
   },

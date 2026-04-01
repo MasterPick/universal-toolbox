@@ -184,6 +184,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/network/HostsTool.vue'),
     meta: { title: 'Hosts 编辑', category: 'network', icon: 'Server' },
   },
+  {
+    path: '/network/dns',
+    name: 'DnsTool',
+    component: () => import('@/views/network/DnsTool.vue'),
+    meta: { title: 'DNS 查询', category: 'network', icon: 'Globe2' },
+  },
 
   // ============ 设置 ============
   {
