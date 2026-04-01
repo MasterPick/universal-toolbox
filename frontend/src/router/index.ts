@@ -126,6 +126,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/sysinfo/ImageTool.vue'),
     meta: { title: '图片工具', category: 'sysinfo', icon: 'Image' },
   },
+  {
+    path: '/sysinfo/filebatch',
+    name: 'FileBatchTool',
+    component: () => import('@/views/sysinfo/FileBatchTool.vue'),
+    meta: { title: '文件批量处理', category: 'sysinfo', icon: 'FolderSearch' },
+  },
 
   // ============ 日常工具 ============
   {

@@ -66,7 +66,7 @@ import {
   Search, Settings, PanelLeftClose, PanelLeftOpen,
   Braces, Code2, Binary, Link, Hash, FileText, QrCode,
   Fingerprint, Clock, Regex, BookMarked, Shield,
-  Cpu, Network, Monitor, FilePen, Pipette, Image,
+  Cpu, Network, Monitor, FilePen, Pipette, Image, FolderSearch,
   Calculator, ArrowLeftRight, StickyNote,
   Signal, Radar, Globe, Server,
 } from 'lucide-vue-next'
@@ -85,7 +85,7 @@ const isActive = (path: string) => route.path.startsWith(path)
 const iconMap: Record<string, any> = {
   Braces, Code2, Binary, Link, Hash, FileText, QrCode,
   Fingerprint, Clock, Regex, BookMarked, Shield,
-  Cpu, Network, Monitor, FilePen, Pipette, Image,
+  Cpu, Network, Monitor, FilePen, Pipette, Image, FolderSearch,
   Calculator, ArrowLeftRight, StickyNote,
   Signal, Radar, Globe, Server,
 }
@@ -121,6 +121,7 @@ const navGroups = [
       { path: '/sysinfo/rename',  label: '批量重命名', icon: 'FilePen' },
       { path: '/sysinfo/colorpicker', label: '取色器', icon: 'Pipette' },
       { path: '/sysinfo/imagetool', label: '图片工具', icon: 'Image' },
+      { path: '/sysinfo/filebatch', label: '文件批量处理', icon: 'FolderSearch' },
     ],
   },
   {
