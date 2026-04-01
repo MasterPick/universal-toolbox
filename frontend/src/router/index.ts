@@ -108,6 +108,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/sysinfo/BatchRename.vue'),
     meta: { title: '批量重命名', category: 'sysinfo', icon: 'FilePen' },
   },
+  {
+    path: '/sysinfo/colorpicker',
+    name: 'ColorPicker',
+    component: () => import('@/views/sysinfo/ColorPicker.vue'),
+    meta: { title: '取色器', category: 'sysinfo', icon: 'Pipette' },
+  },
 
   // ============ 日常工具 ============
   {
