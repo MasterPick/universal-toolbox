@@ -7,15 +7,15 @@
         <Globe2 :size="20" class="text-primary-400" />
         DNS 查询
       </div>
-      <div class="page-desc">域名解析 · DNS 记录查询 · 支持国内外 DNS 服务器</div>
+      <div class="page-desc">域名解析 · DNS 记录查询 · 批量查询</div>
     </div>
 
     <!-- 查询输入 -->
     <div class="card mb-4">
-      <div class="flex gap-3 flex-wrap">
+      <div class="flex gap-3">
         <input
           v-model="domain"
-          class="input-field flex-1 min-w-[200px]"
+          class="input-field flex-1"
           placeholder="输入域名，如 example.com"
           @keyup.enter="query"
         />
@@ -27,17 +27,6 @@
           <option value="TXT">TXT 记录</option>
           <option value="NS">NS 记录</option>
           <option value="SOA">SOA</option>
-        </select>
-        <select v-model="dnsServer" class="input-field w-36">
-          <optgroup label="国内 DNS">
-            <option value="alipay">阿里 DNS</option>
-            <option value="tencent">腾讯 DNS</option>
-            <option value="dnspod">DNSPod</option>
-          </optgroup>
-          <optgroup label="国际 DNS">
-            <option value="google">Google DNS</option>
-            <option value="cloudflare">Cloudflare</option>
-          </optgroup>
         </select>
         <button @click="query" :disabled="isLoading" class="btn btn-primary">
           <Loader2 v-if="isLoading" :size="14" class="loading-spin" />
@@ -173,35 +162,10 @@ const appStore = useAppStore()
 // 状态
 const domain = ref('')
 const recordType = ref('A')
-const dnsServer = ref('alipay') // 默认使用阿里 DNS
 const isLoading = ref(false)
 const showRaw = ref(false)
 const result = ref<any>(null)
 const history = ref<string[]>([])
-
-// DNS 服务器配置
-const DNS_SERVERS: Record<string, { name: string; dohUrl: string }> = {
-  alipay: {
-    name: '阿里 DNS (223.5.5.5)',
-    dohUrl: 'https://dns.alidns.com/dns-query'
-  },
-  tencent: {
-    name: '腾讯 DNS (119.29.29.29)',
-    dohUrl: 'https://doh.pub/dns-query'
-  },
-  dnspod: {
-    name: 'DNSPod (119.29.29.29)',
-    dohUrl: 'https://sm2.doh.pub/dns-query'
-  },
-  google: {
-    name: 'Google DNS (8.8.8.8)',
-    dohUrl: 'https://dns.google/resolve'
-  },
-  cloudflare: {
-    name: 'Cloudflare (1.1.1.1)',
-    dohUrl: 'https://cloudflare-dns.com/dns-query'
-  }
-}
 
 // 快捷域名
 const quickDomains = ['google.com', 'github.com', 'baidu.com', 'qq.com', 'openai.com']
@@ -213,11 +177,11 @@ async function query() {
   isLoading.value = true
   result.value = null
 
-  const startTime = Date.now()
-
   try {
-    const server = DNS_SERVERS[dnsServer.value]
-    const data = await queryDoh(server.dohUrl, domain.value, recordType.value)
+    // 使用 DNS over HTTPS (DoH) 服务
+    const dohUrl = `https://dns.google/resolve?name=${domain.value}&type=${recordType.value}`
+    const response = await fetch(dohUrl)
+    const data = await response.json()
 
     if (data.Status !== 0) {
       result.value = {
@@ -235,8 +199,8 @@ async function query() {
         domain: domain.value,
         type: recordType.value,
         records,
-        queryTime: Date.now() - startTime,
-        dnsServer: server.name,
+        queryTime: 0,
+        dnsServer: 'dns.google (8.8.8.8)',
         raw: data
       }
 
@@ -256,201 +220,6 @@ async function query() {
   } finally {
     isLoading.value = false
   }
-}
-
-// DoH 查询
-async function queryDoh(dohUrl: string, domain: string, type: string): Promise<any> {
-  // Google DoH 使用 GET 请求，参数在 URL 中
-  if (dohUrl.includes('dns.google')) {
-    const url = `${dohUrl}?name=${domain}&type=${type}`
-    const response = await fetch(url)
-    return await response.json()
-  }
-
-  // 阿里/腾讯/Cloudflare DoH 使用 POST 请求，DNS wire format
-  const dnsPacket = createDnsQuery(domain, type)
-
-  const response = await fetch(dohUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/dns-message',
-      'Accept': 'application/dns-message'
-    },
-    body: dnsPacket
-  })
-
-  // 解析 DNS 响应
-  const responseBuffer = await response.arrayBuffer()
-  return parseDnsResponse(responseBuffer)
-}
-
-// 创建 DNS 查询包 (wire format)
-function createDnsQuery(domain: string, type: string): ArrayBuffer {
-  const typeMap: Record<string, number> = {
-    A: 1, AAAA: 28, CNAME: 5, MX: 15, TXT: 16, NS: 2, SOA: 6
-  }
-  const qtype = typeMap[type] || 1
-
-  // DNS header (12 bytes) + Question
-  const labels = domain.split('.').map(label => {
-    const buf = new Uint8Array(label.length + 1)
-    buf[0] = label.length
-    for (let i = 0; i < label.length; i++) buf[i + 1] = label.charCodeAt(i)
-    return buf
-  })
-
-  const header = new Uint8Array([
-    0x00, 0x01, // Transaction ID
-    0x01, 0x00, // Flags: standard query
-    0x00, 0x01, // Questions: 1
-    0x00, 0x00, // Answers: 0
-    0x00, 0x00, // Authority: 0
-    0x00, 0x00  // Additional: 0
-  ])
-
-  const question = new Uint8Array([
-    ...labels.flat(),
-    0x00, // Root label
-    (qtype >> 8) & 0xff, qtype & 0xff, // QTYPE
-    0x00, 0x01 // QCLASS: IN
-  ])
-
-  const packet = new Uint8Array(header.length + question.length)
-  packet.set(header, 0)
-  packet.set(question, header.length)
-
-  return packet.buffer
-}
-
-// 解析 DNS 响应包
-function parseDnsResponse(buffer: ArrayBuffer): any {
-  const view = new DataView(buffer)
-  const uint8 = new Uint8Array(buffer)
-
-  // 解析 header
-  const flags = view.getUint16(2)
-  const status = flags & 0x000F
-  const qdcount = view.getUint16(4)
-  const ancount = view.getUint16(6)
-
-  let offset = 12 // Skip header
-
-  // Skip question section
-  for (let i = 0; i < qdcount; i++) {
-    while (uint8[offset] !== 0) offset += uint8[offset] + 1
-    offset += 5 // null label + QTYPE + QCLASS
-  }
-
-  // Parse answer section
-  const answers: any[] = []
-
-  for (let i = 0; i < ancount; i++) {
-    // Name (may be compressed)
-    if ((uint8[offset] & 0xc0) === 0xc0) {
-      offset += 2 // Compressed name pointer
-    } else {
-      while (uint8[offset] !== 0) offset += uint8[offset] + 1
-      offset += 1
-    }
-
-    const rtype = view.getUint16(offset); offset += 2
-    const rclass = view.getUint16(offset); offset += 2
-    const ttl = view.getUint32(offset); offset += 4
-    const rdlength = view.getUint16(offset); offset += 2
-
-    const rdata = uint8.slice(offset, offset + rdlength); offset += rdlength
-
-    answers.push({
-      name: '',
-      type: rtype,
-      TTL: ttl,
-      data: parseRdata(rtype, rdata, uint8, buffer)
-    })
-  }
-
-  return {
-    Status: status,
-    Answer: answers
-  }
-}
-
-// 解析 RDATA
-function parseRdata(type: number, rdata: Uint8Array, fullPacket: Uint8Array, buffer: ArrayBuffer): string {
-  switch (type) {
-    case 1: // A
-      return Array.from(rdata).join('.')
-    case 28: // AAAA
-      const groups: string[] = []
-      for (let i = 0; i < 16; i += 2) {
-        groups.push(((rdata[i] << 8) | rdata[i + 1]).toString(16))
-      }
-      return groups.join(':')
-    case 5: // CNAME
-    case 2: // NS
-      return parseDomainName(rdata, 0, fullPacket)
-    case 15: // MX
-      const preference = (rdata[0] << 8) | rdata[1]
-      const exchange = parseDomainName(rdata, 2, fullPacket)
-      return `${preference} ${exchange}`
-    case 16: // TXT
-      let txt = ''
-      let i = 0
-      while (i < rdata.length) {
-        const len = rdata[i]
-        txt += new TextDecoder().decode(rdata.slice(i + 1, i + 1 + len))
-        i += len + 1
-      }
-      return txt
-    case 6: // SOA
-      let off = 0
-      const mname = parseDomainName(rdata, off, fullPacket)
-      off = skipDomainName(rdata, off)
-      const rname = parseDomainName(rdata, off, fullPacket)
-      return `${mname} ${rname}`
-    default:
-      return Array.from(rdata).map(b => b.toString(16).padStart(2, '0')).join(' ')
-  }
-}
-
-// 解析域名（支持压缩指针）
-function parseDomainName(data: Uint8Array, offset: number, fullPacket: Uint8Array): string {
-  const labels: string[] = []
-  let jumped = false
-  let jumpedOffset = 0
-
-  while (offset < data.length) {
-    const len = data[offset]
-
-    if (len === 0) break
-
-    if ((len & 0xc0) === 0xc0) {
-      // Compressed pointer
-      if (!jumped) {
-        jumped = true
-        jumpedOffset = offset + 2
-      }
-      const ptr = ((len & 0x3f) << 8) | data[offset + 1]
-      offset = ptr
-      continue
-    }
-
-    offset++
-    labels.push(new TextDecoder().decode(data.slice(offset, offset + len)))
-    offset += len
-  }
-
-  return labels.join('.')
-}
-
-// 跳过域名
-function skipDomainName(data: Uint8Array, offset: number): number {
-  while (offset < data.length && data[offset] !== 0) {
-    if ((data[offset] & 0xc0) === 0xc0) {
-      return offset + 2
-    }
-    offset += data[offset] + 1
-  }
-  return offset + 1
 }
 
 // DNS 状态码转换
