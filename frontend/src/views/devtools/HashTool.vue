@@ -42,7 +42,7 @@
 import { ref } from 'vue'
 import { Hash, Wand2, Trash2, Copy } from 'lucide-vue-next'
 import { useAppStore } from '@/stores/app'
-import { CalcMD5, CalcSHA1, CalcSHA256 } from '../../../wailsjs/go/devtools/DevTools'
+import { CalcMD5, CalcSHA1, CalcSHA256, CalcSHA512 } from '../../../wailsjs/go/devtools/DevTools'
 
 const appStore = useAppStore()
 const inputText = ref('')
@@ -60,25 +60,16 @@ async function calcAll() {
   // 清空之前的错误
   results.value.forEach(r => { r.value = ''; r.error = '' })
   try {
-    const [md5, sha1, sha256] = await Promise.all([
+    const [md5, sha1, sha256, sha512] = await Promise.all([
       CalcMD5(inputText.value).catch((e: unknown) => ({ success: false, error: String(e) })),
       CalcSHA1(inputText.value).catch((e: unknown) => ({ success: false, error: String(e) })),
       CalcSHA256(inputText.value).catch((e: unknown) => ({ success: false, error: String(e) })),
+      CalcSHA512(inputText.value).catch((e: unknown) => ({ success: false, error: String(e) })),
     ])
     if (md5.success !== false) { results.value[0].value = md5.data } else { results.value[0].error = md5.error }
     if (sha1.success !== false) { results.value[1].value = sha1.data } else { results.value[1].error = sha1.error }
     if (sha256.success !== false) { results.value[2].value = sha256.data } else { results.value[2].error = sha256.error }
-
-    // SHA512: 使用 Web Crypto API (后端未提供)
-    try {
-      const encoder = new TextEncoder()
-      const data = encoder.encode(inputText.value)
-      const hashBuffer = await crypto.subtle.digest('SHA-512', data)
-      const hashArray = Array.from(new Uint8Array(hashBuffer))
-      results.value[3].value = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-    } catch (e) {
-      results.value[3].error = 'SHA512 计算失败: ' + String(e)
-    }
+    if (sha512.success !== false) { results.value[3].value = sha512.data } else { results.value[3].error = sha512.error }
 
     appStore.showToast('success', '哈希计算完成')
   } catch (e) {

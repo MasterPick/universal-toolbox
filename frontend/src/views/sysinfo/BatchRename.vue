@@ -3,6 +3,20 @@
     <div class="page-title"><FilePen :size="20" class="text-primary-400"/>批量重命名</div>
     <div class="page-desc">批量重命名文件，支持前缀/后缀/序号/正则替换</div>
 
+    <!-- 目录和文件匹配 -->
+    <div class="card mb-4">
+      <div class="label mb-2">文件目录</div>
+      <div class="flex gap-2 mb-3">
+        <input v-model="directory" class="input-field flex-1" placeholder="选择文件所在目录..." readonly />
+        <button @click="selectDirectory" class="btn btn-secondary"><FolderOpen :size="14"/>选择目录</button>
+      </div>
+      <div class="label mb-2">文件匹配模式</div>
+      <input v-model="filePattern" class="input-field mb-3" placeholder="如 * 或 *.txt" />
+      <button @click="loadFiles" class="btn btn-secondary" :disabled="!directory">
+        <Upload :size="14"/>加载文件
+      </button>
+    </div>
+
     <!-- 重命名模式选择 -->
     <div class="card mb-4">
       <div class="label mb-2">重命名模式</div>
@@ -11,7 +25,6 @@
         <button :class="['btn', renameMode==='prefix'?'btn-primary':'btn-secondary']" @click="renameMode='prefix'">添加前缀</button>
         <button :class="['btn', renameMode==='suffix'?'btn-primary':'btn-secondary']" @click="renameMode='suffix'">添加后缀</button>
         <button :class="['btn', renameMode==='sequence'?'btn-primary':'btn-secondary']" @click="renameMode='sequence'">序号命名</button>
-        <button :class="['btn', renameMode==='case'?'btn-primary':'btn-secondary']" @click="renameMode='case'">大小写转换</button>
       </div>
     </div>
 
@@ -44,28 +57,11 @@
           <input v-model="seqSeparator" class="input-field w-16" placeholder="分隔符" value="_"/>
         </div>
       </template>
-      <!-- 大小写 -->
-      <template v-if="renameMode==='case'">
-        <div class="flex gap-2 mb-3">
-          <button :class="['btn', caseType==='upper'?'btn-primary':'btn-secondary']" @click="caseType='upper'">全部大写</button>
-          <button :class="['btn', caseType==='lower'?'btn-primary':'btn-secondary']" @click="caseType='lower'">全部小写</button>
-          <button :class="['btn', caseType==='title'?'btn-primary':'btn-secondary']" @click="caseType='title'">首字母大写</button>
-        </div>
-      </template>
 
       <div class="flex gap-2">
         <button @click="preview" class="btn btn-secondary">预览</button>
         <button @click="doRename" class="btn btn-primary">执行重命名</button>
         <button @click="clearFiles" class="btn btn-secondary">清空列表</button>
-      </div>
-    </div>
-
-    <!-- 文件拖放区 -->
-    <div class="card mb-4">
-      <div class="label mb-2">拖放文件到此处（或点击选择）</div>
-      <div class="drop-zone" @dragover.prevent @drop="onDrop">
-        <Upload :size="32" class="mx-auto mb-2 opacity-40"/>
-        <div class="text-sm opacity-40">拖放文件到这里</div>
       </div>
     </div>
 
@@ -84,25 +80,42 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FilePen, Upload } from 'lucide-vue-next'
+import { FilePen, Upload, FolderOpen } from 'lucide-vue-next'
 import { useAppStore } from '@/stores/app'
 import { BatchRename } from '../../../wailsjs/go/sysinfo/SysInfo'
+import { OpenFileDialog } from '../../../wailsjs/runtime/runtime'
 const appStore = useAppStore()
 
 const files = ref<{original:string,renamed:string,path:string}[]>([])
-const renameMode = ref<'regex'|'prefix'|'suffix'|'sequence'|'case'>('regex')
+const directory = ref('')
+const filePattern = ref('*')
+const renameMode = ref<'regex'|'prefix'|'suffix'|'sequence'>('prefix')
 const pattern = ref(''), replacement = ref('')
 const prefixText = ref(''), suffixText = ref('')
 const seqBaseName = ref(''), seqStart = ref(1), seqSeparator = ref('_')
-const caseType = ref<'upper'|'lower'|'title'>('upper')
 
-function onDrop(e: DragEvent) {
-  const items = e.dataTransfer?.files
-  if (!items) return
-  for (let i = 0; i < items.length; i++) {
-    const f = items[i] as any
-    files.value.push({ original: f.name, renamed: f.name, path: f.path || '' })
+// 选择目录
+async function selectDirectory() {
+  try {
+    const dir = await OpenFileDialog({ Title: '选择文件所在目录' })
+    if (dir) {
+      directory.value = dir
+      appStore.showToast('success', `已选择目录: ${dir}`)
+    }
+  } catch (e) {
+    appStore.showToast('error', '选择目录失败: ' + String(e))
   }
+}
+
+// 加载文件列表（从目录路径提取文件名作为预览）
+async function loadFiles() {
+  if (!directory.value) return
+  files.value = []
+  // 由于后端没有扫描方法，这里仅做目录确认提示
+  // 实际重命名由后端根据 directory + filePattern 执行
+  appStore.showToast('success', `已设置目录: ${directory.value}，模式: ${filePattern.value}`)
+  // 添加占位提示
+  files.value = [{ original: `(${filePattern.value} 匹配的文件)`, renamed: '将在执行时由后端处理', path: '' }]
 }
 
 function getFileNameWithoutExt(name: string): { base: string; ext: string } {
@@ -132,13 +145,6 @@ function preview() {
         case 'sequence':
           newBase = seqBaseName.value + seqSeparator.value + String(seqStart.value + idx).padStart(3, '0')
           break
-        case 'case':
-          switch (caseType.value) {
-            case 'upper': newBase = base.toUpperCase(); break
-            case 'lower': newBase = base.toLowerCase(); break
-            case 'title': newBase = base.charAt(0).toUpperCase() + base.slice(1).toLowerCase(); break
-          }
-          break
       }
     } catch {
       // 正则错误时保持原名
@@ -148,36 +154,43 @@ function preview() {
 }
 
 async function doRename() {
-  // 先确保预览是最新的
-  preview()
-
-  // 检查是否有实际变更
-  const changedFiles = files.value.filter(f => f.original !== f.renamed)
-  if (changedFiles.length === 0) {
-    appStore.showToast('warning', '没有需要重命名的文件')
+  if (!directory.value) {
+    appStore.showToast('warning', '请先选择文件目录')
     return
   }
 
-  // 构建重命名映射
-  const renameMap: Record<string, string> = {}
-  for (const f of changedFiles) {
-    if (f.path) {
-      const lastSep = f.path.lastIndexOf(/[/\\]/.test(f.path) ? (f.path.includes('\\') ? '\\' : '/') : '/')
-      const dir = lastSep >= 0 ? f.path.substring(0, lastSep + 1) : ''
-      renameMap[f.path] = dir + f.renamed
-    } else {
-      renameMap[f.original] = f.renamed
-    }
+  // 根据模式构建 value 和 replace 参数
+  let mode = renameMode.value
+  let value = ''
+  let replace = ''
+
+  switch (renameMode.value) {
+    case 'regex':
+      value = pattern.value
+      replace = replacement.value
+      break
+    case 'prefix':
+      value = prefixText.value
+      replace = ''
+      break
+    case 'suffix':
+      value = suffixText.value
+      replace = ''
+      break
+    case 'sequence':
+      value = seqBaseName.value + seqSeparator.value + String(seqStart.value)
+      replace = ''
+      break
   }
 
   try {
-    const result = await BatchRename(renameMap) as any
-    if (result && result.success !== false) {
-      appStore.showToast('success', `成功重命名 ${changedFiles.length} 个文件`)
-      // 更新文件列表
-      files.value = files.value.map(f => ({ ...f, original: f.renamed }))
+    const result = await BatchRename(directory.value, filePattern.value, mode, value, replace) as any
+    if (result) {
+      const count = result.RenamedCount || result.renamedCount || result.count || 0
+      appStore.showToast('success', `成功重命名 ${count} 个文件`)
+      files.value = []
     } else {
-      appStore.showToast('error', result?.error || '重命名失败')
+      appStore.showToast('error', '重命名失败')
     }
   } catch (e) {
     appStore.showToast('error', '重命名失败: ' + String(e))

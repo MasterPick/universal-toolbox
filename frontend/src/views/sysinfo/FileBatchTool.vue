@@ -186,7 +186,7 @@ import { ref, computed } from 'vue'
 import { FolderSearch, FolderOpen, Search, Settings2, Copy, FolderInput, Trash2, Play, Loader2, File as FileIcon } from 'lucide-vue-next'
 import { useAppStore } from '@/stores/app'
 import { OpenFileDialog } from '../../../wailsjs/runtime/runtime'
-import { ScanDirectory, BatchCopyFiles, BatchMoveFiles, BatchDeleteFiles } from '../../../wailsjs/go/sysinfo/SysInfo'
+import { FileOperation } from '../../../wailsjs/go/sysinfo/SysInfo'
 
 const appStore = useAppStore()
 
@@ -256,29 +256,33 @@ async function selectTargetDir() {
   }
 }
 
-// 扫描文件
+// 扫描文件 - 使用 OpenFileDialog 选择文件
 async function scanFiles() {
   if (!sourceDir.value) return
   scanning.value = true
   files.value = []
   try {
-    const filterExt = fileFilter.value === '*' ? '' : fileFilter.value
-    const result = await ScanDirectory(sourceDir.value, filterExt, searchPattern.value) as any
-    if (result && result.success !== false) {
-      const fileList = Array.isArray(result) ? result : (result.files || [])
-      files.value = fileList.map((f: any) => ({
-        name: f.name || '',
-        path: f.path || '',
-        size: f.size || 0,
-        modTime: f.modTime || '',
-        selected: false
-      }))
-      appStore.showToast('success', `扫描完成，共 ${files.value.length} 个文件`)
-    } else {
-      appStore.showToast('error', result?.error || '扫描失败')
+    const result = await OpenFileDialog({
+      Title: '选择要处理的文件',
+      Directory: sourceDir.value,
+    })
+    if (result) {
+      // OpenFileDialog 可能返回单个文件路径或多个文件路径
+      const selectedPaths = Array.isArray(result) ? result : [result]
+      for (const p of selectedPaths) {
+        const name = p.split(/[/\\]/).pop() || p
+        files.value.push({
+          name,
+          path: p,
+          size: 0,
+          modTime: '',
+          selected: false,
+        })
+      }
+      appStore.showToast('success', `已选择 ${files.value.length} 个文件`)
     }
   } catch (e) {
-    appStore.showToast('error', '扫描失败: ' + String(e))
+    appStore.showToast('error', '选择文件失败: ' + String(e))
   } finally {
     scanning.value = false
   }
@@ -290,12 +294,11 @@ function toggleSelectAll() {
   files.value.forEach(f => f.selected = newState)
 }
 
-// 执行操作
+// 执行操作 - 使用 FileOperation 逐个处理
 async function executeOperation() {
   if (!canExecute.value) return
 
   const selectedFiles = files.value.filter(f => f.selected)
-  const filePaths = selectedFiles.map(f => f.path)
 
   // 删除操作二次确认
   if (operation.value === 'delete') {
@@ -306,45 +309,32 @@ async function executeOperation() {
   isExecuting.value = true
   logs.value = []
 
-  try {
-    let result: any
-    if (operation.value === 'copy') {
-      result = await BatchCopyFiles(filePaths, targetDir.value) as any
-    } else if (operation.value === 'move') {
-      result = await BatchMoveFiles(filePaths, targetDir.value) as any
-    } else {
-      result = await BatchDeleteFiles(filePaths) as any
-    }
+  let successCount = 0
+  let failCount = 0
 
-    if (result && result.success !== false) {
-      const details = result.details || result.results || []
-      if (Array.isArray(details)) {
-        for (const d of details) {
-          if (d.success || d.error === '') {
-            logs.value.push({ type: 'success', message: `OK ${d.file || d.path || ''}` })
-          } else {
-            logs.value.push({ type: 'error', message: `FAIL ${d.file || d.path || ''}: ${d.error}` })
-          }
-        }
-      } else {
-        logs.value.push({ type: 'success', message: `操作完成，处理 ${selectedFiles.length} 个文件` })
-      }
-      appStore.showToast('success', `操作完成，处理 ${selectedFiles.length} 个文件`)
-
-      // 如果是删除或移动，从列表移除
-      if (operation.value === 'delete' || operation.value === 'move') {
-        files.value = files.value.filter(f => !f.selected)
-      }
-    } else {
-      logs.value.push({ type: 'error', message: result?.error || '操作失败' })
-      appStore.showToast('error', result?.error || '操作失败')
+  for (const file of selectedFiles) {
+    try {
+      const dst = operation.value === 'delete' ? '' : (targetDir.value + '/' + file.name)
+      await FileOperation(operation.value, file.path, dst)
+      logs.value.push({ type: 'success', message: `OK ${file.name}` })
+      successCount++
+    } catch (err) {
+      logs.value.push({ type: 'error', message: `FAIL ${file.name}: ${err}` })
+      failCount++
     }
-  } catch (err) {
-    logs.value.push({ type: 'error', message: `操作异常: ${err}` })
-    appStore.showToast('error', '操作异常: ' + String(err))
-  } finally {
-    isExecuting.value = false
   }
+
+  if (failCount === 0) {
+    appStore.showToast('success', `操作完成，成功处理 ${successCount} 个文件`)
+    // 如果是删除或移动，从列表移除
+    if (operation.value === 'delete' || operation.value === 'move') {
+      files.value = files.value.filter(f => !f.selected)
+    }
+  } else {
+    appStore.showToast('warning', `操作完成：${successCount} 成功，${failCount} 失败`)
+  }
+
+  isExecuting.value = false
 }
 
 // 格式化大小

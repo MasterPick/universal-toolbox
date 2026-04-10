@@ -92,7 +92,7 @@ async function saveNote() {
     if (editNoteData.value.id) {
       await UpdateNote(editNoteData.value.id, editNoteData.value.title, editNoteData.value.content, editNoteData.value.color)
     } else {
-      await SaveNote(editNoteData.value.title, editNoteData.value.content, editNoteData.value.color)
+      await SaveNote(editNoteData.value.title, editNoteData.value.content, editNoteData.value.color, false)
     }
     showEdit.value = false
     loadNotes()

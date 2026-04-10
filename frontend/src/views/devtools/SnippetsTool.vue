@@ -85,7 +85,7 @@ async function saveSnippet() {
   const { title, content, language, tags } = newSnippet.value
   if (!title || !content) { appStore.showToast('warning', '标题和内容不能为空'); return }
   try {
-    await SaveSnippet(title, content, language, tags)
+    await SaveSnippet(editingId.value || 0, title, content, language, tags)
     showEdit.value = false
     newSnippet.value = { title:'', content:'', language:'text', tags:'' }
     editingId.value = null
@@ -145,7 +145,7 @@ async function importSnippets(e: Event) {
     let count = 0
     for (const item of items) {
       if (item.title && item.content) {
-        await SaveSnippet(item.title, item.content, item.language || 'text', item.tags || '')
+        await SaveSnippet(0, item.title, item.content, item.language || 'text', item.tags || '')
         count++
       }
     }

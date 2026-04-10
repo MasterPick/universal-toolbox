@@ -117,7 +117,7 @@
 import { ref, computed } from 'vue'
 import { HardDrive, Search, CheckSquare, Trash2, CheckCircle, AlertTriangle } from 'lucide-vue-next'
 import { useAppStore } from '@/stores/app'
-import { ScanTempFiles, CleanFiles } from '../../../wailsjs/go/sysinfo/SysInfo'
+import { ScanDiskJunk, CleanDiskItems } from '../../../wailsjs/go/sysinfo/SysInfo'
 
 interface ScanItem {
   path: string
@@ -169,25 +169,25 @@ async function startScan() {
   scanResults.value = []
 
   try {
-    const res = await ScanTempFiles() as any
-    if (res && res.success !== false) {
+    const res = await ScanDiskJunk() as any
+    if (res && res.Items) {
       // 模拟进度动画
-      const total = (res.data || []).length
+      const total = res.Items.length
       for (let i = 0; i < total; i++) {
-        const item = res.data[i]
+        const item = res.Items[i]
         scanResults.value.push({
-          path: item.path,
-          size: item.size,
-          type: item.type || '临时文件',
+          path: item.Path || item.path,
+          size: item.Size || item.size,
+          type: item.Type || item.type || '临时文件',
           selected: false,
         })
         scanProgress.value = Math.round(((i + 1) / total) * 100)
-        scanStatus.value = `正在扫描: ${item.path}`
+        scanStatus.value = `正在扫描: ${item.Path || item.path}`
       }
       scanStatus.value = `扫描完成，共发现 ${total} 个文件`
       appStore.showToast('success', `扫描完成，发现 ${total} 个可清理文件`)
     } else {
-      appStore.showToast('error', res?.error || '扫描失败')
+      appStore.showToast('error', '扫描失败')
     }
   } catch (e) {
     // 后端不可用时使用模拟数据
@@ -258,23 +258,19 @@ async function doClean() {
   const paths = toClean.map(i => i.path)
 
   try {
-    const res = await CleanFiles(paths) as any
-    if (res && res.success !== false) {
-      cleanedSize.value += selectedSize.value
+    const itemsJSON = JSON.stringify(paths)
+    const res = await CleanDiskItems(itemsJSON) as any
+    if (res) {
+      cleanedSize.value += (res.FreedSize || res.freedSize || 0)
       // 从列表中移除已清理项
+      const cleanedCount = res.CleanedCount || res.cleanedCount || toClean.length
       toClean.forEach(item => {
         const idx = scanResults.value.indexOf(item)
         if (idx > -1) scanResults.value.splice(idx, 1)
       })
-      appStore.showToast('success', `已清理 ${toClean.length} 个文件`)
+      appStore.showToast('success', `已清理 ${cleanedCount} 个文件`)
     } else {
-      // 后端不可用时模拟清理
-      cleanedSize.value += selectedSize.value
-      toClean.forEach(item => {
-        const idx = scanResults.value.indexOf(item)
-        if (idx > -1) scanResults.value.splice(idx, 1)
-      })
-      appStore.showToast('success', `已清理 ${toClean.length} 个文件（模拟）`)
+      appStore.showToast('error', '清理失败')
     }
   } catch {
     // 降级：模拟清理
