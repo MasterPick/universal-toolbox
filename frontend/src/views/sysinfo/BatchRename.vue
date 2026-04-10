@@ -73,7 +73,6 @@
         </div>
       </div>
     </div>
-  </div>
   </ToolPage>
 </template>
 <script setup lang="ts">
