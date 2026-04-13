@@ -183,7 +183,7 @@ async function doRename() {
   try {
     const result = await BatchRename(directory.value, filePattern.value, mode, value, replace) as any
     if (result) {
-      const count = result.RenamedCount || result.renamedCount || result.count || 0
+      const count = result.results ? result.results.length : 0
       appStore.showToast('success', `成功重命名 ${count} 个文件`)
       files.value = []
     } else {

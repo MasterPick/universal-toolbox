@@ -260,9 +260,9 @@ async function doClean() {
     const itemsJSON = JSON.stringify(paths)
     const res = await CleanDiskItems(itemsJSON) as any
     if (res) {
-      cleanedSize.value += (res.FreedSize || res.freedSize || 0)
+      cleanedSize.value += (res.totalSize || 0)
       // 从列表中移除已清理项
-      const cleanedCount = res.CleanedCount || res.cleanedCount || toClean.length
+      const cleanedCount = res.count || toClean.length
       toClean.forEach(item => {
         const idx = scanResults.value.indexOf(item)
         if (idx > -1) scanResults.value.splice(idx, 1)

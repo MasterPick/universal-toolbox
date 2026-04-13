@@ -234,10 +234,10 @@ async function startTest() {
     const res = await RunSpeedTest() as any
     if (res && res.success !== false) {
       testResults.value = {
-        downloadSpeed: res.data?.downloadSpeed || '0.0',
-        uploadSpeed: res.data?.uploadSpeed || '0.0',
-        ping: res.data?.ping || '0',
-        loss: res.data?.loss || '0',
+        downloadSpeed: res.downloadMbps || '0.0',
+        uploadSpeed: res.uploadMbps || '0.0',
+        ping: res.latencyMs || '0',
+        loss: res.packetLoss || '0',
       }
       addHistory(testResults.value)
       appStore.showToast('success', '测速完成')
